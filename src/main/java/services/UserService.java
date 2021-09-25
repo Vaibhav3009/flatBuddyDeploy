@@ -1,6 +1,7 @@
 package services;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,6 +34,9 @@ public class UserService {
 
 	@Autowired
 	private JavaMailSender mailSender;
+
+	private final List<Integer> weights = Arrays.asList(5,3,3,6,1,2,4);
+
 
 
 	public User updateUser(UpdatePayload user, Integer id){
@@ -150,9 +154,15 @@ public class UserService {
 		double normA = 0.0;
 		double normB = 0.0;
 		for (int i = 0; i < self.length; i++) {
-			dotProduct += Double.parseDouble(self[i]) == Double.parseDouble(other[i])?1:0;
-			normA += Math.pow(Double.parseDouble(self[i]), 2);
-			normB += Math.pow(Double.parseDouble(other[i]), 2);
+			dotProduct += self[i].equals(other[i])?1:0;
+			if(self[i].equals(other[i]) && self[i].equals("0")){
+				normA+=1.0;
+				normB+= 1.0;
+			}
+			else {
+				normA += Math.pow(Double.parseDouble(self[i]), 2);
+				normB += Math.pow(Double.parseDouble(other[i]), 2);
+			}
 		}
 		System.out.println("hobby "+dotProduct / (Math.sqrt(normA) * Math.sqrt(normB)));
 		return  dotProduct / (Math.sqrt(normA) * Math.sqrt(normB)) >= 0.3;
@@ -163,10 +173,17 @@ public class UserService {
 		double normA = 0.0;
 		double normB = 0.0;
 		for (int i = 0; i < self.length; i++) {
-			dotProduct += Double.parseDouble(self[i]) == Double.parseDouble(other[i])?1:0;
-			normA += Math.pow(Double.parseDouble(self[i]), 2);
-			normB += Math.pow(Double.parseDouble(other[i]), 2);
+			dotProduct += self[i].equals(other[i])? weights.get(i)*weights.get(i) :0;
+			if(self[i].equals(other[i]) && self[i].equals("0")){
+				normA+=weights.get(i)*weights.get(i);
+				normB+= weights.get(i)*weights.get(i);
+			}
+			else {
+				normA += Math.pow(Double.parseDouble(self[i])*weights.get(i), 2);
+				normB += Math.pow(Double.parseDouble(other[i])*weights.get(i), 2);
+			}
 		}
+
 		System.out.println("habit "+dotProduct / (Math.sqrt(normA) * Math.sqrt(normB)));
 		return  dotProduct / (Math.sqrt(normA) * Math.sqrt(normB)) >= 0.5;
 	}
